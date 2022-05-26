@@ -1,6 +1,8 @@
+from cgi import test
 from seleniumwire import webdriver
 import requests
 import json
+from CisChecks.AccountAuthentication.admin_mfa_enabled import AdminMFACheck
 
 GRAPH_EXPLORER_LINK = "https://developer.microsoft.com/en-us/graph/graph-explorer"
 SECURE_SCORE_LINK = "https://graph.microsoft.com:443/beta/security/secureScores"
@@ -31,22 +33,29 @@ def retrieve_graph_explorer_headers():
         # If the Bearer was not found, force its presence by sending any request on the Graph Explorer
         print("[X] Could not find the authorization Bearer in the performed requests")
         print("[*] Send any request with the graph explorer and try again...")
-        input("[*] Perform a request, then press Enter to continue...")
+        input("[*] Perform a request, then press Enter to continue or Ctrl+C to exit...")
 
+# Retrieve the security score calculated by Microsoft, as many checks can be done with it
 def get_security_score(session, graph_explorer_headers):
+
     print("[*] Trying to retrieve the security score...")
-    res=session.get(SECURE_SCORE_LINK, headers = graph_explorer_headers)
+    res = session.get(SECURE_SCORE_LINK, headers = graph_explorer_headers)
+    # Check the response status code
     if(res.status_code == 200):
         print("[V] The secure score has been correctly obtained")
         return json.loads(res.text)
     else:
         print("[X] A problem was encountered while sending the secure score request")
         print(res.text)
+        exit(1)
 
 def main():
+
     graph_explrer_session = requests.session()
     graph_explorer_headers = retrieve_graph_explorer_headers()
-    get_security_score(graph_explrer_session, graph_explorer_headers)
+    security_score = get_security_score(graph_explrer_session, graph_explorer_headers) 
+    test_check = AdminMFACheck()
+    test_check.make_check(security_score)
 
 if __name__ == "__main__":
     main()
