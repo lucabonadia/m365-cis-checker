@@ -10,6 +10,7 @@ SECURE_SCORE_LINK = "https://graph.microsoft.com:443/beta/security/secureScores"
 def retrieve_graph_explorer_headers():
     
     # Create the webdriver
+    print("[*] Opening the browser...")
     firefox_webdriver = webdriver.Firefox()
     firefox_webdriver.get(GRAPH_EXPLORER_LINK)
     
@@ -55,7 +56,7 @@ def main():
     graph_explorer_headers = retrieve_graph_explorer_headers()
     security_score = get_security_score(graph_explrer_session, graph_explorer_headers) 
     test_check = AdminMFACheck()
-    test_check.make_check(security_score)
+    test_check.check_compliance(security_score)
 
 if __name__ == "__main__":
     main()
