@@ -3,6 +3,7 @@ from seleniumwire import webdriver
 import requests
 import json
 from CisChecks.AccountAuthentication.admin_mfa_enabled import AdminMFACheck
+from CisChecks.AccountAuthentication.global_admin_number import GlobalAdminNumberCheck
 
 GRAPH_EXPLORER_LINK = "https://developer.microsoft.com/en-us/graph/graph-explorer"
 SECURE_SCORE_LINK = "https://graph.microsoft.com:443/beta/security/secureScores"
@@ -29,6 +30,9 @@ def retrieve_graph_explorer_headers():
                 header_dict = dict(request.headers)
                 # If the Bearer is found, return every header of that request, doing so makes the 
                 # request flow less "artificial" from Microsoft perspective
+                # Close the browser
+                print("[*] Closing the browser...")
+                firefox_webdriver.close()
                 return header_dict
         
         # If the Bearer was not found, force its presence by sending any request on the Graph Explorer
@@ -55,8 +59,13 @@ def main():
     graph_explrer_session = requests.session()
     graph_explorer_headers = retrieve_graph_explorer_headers()
     security_score = get_security_score(graph_explrer_session, graph_explorer_headers) 
-    test_check = AdminMFACheck()
-    test_check.check_compliance(security_score)
+    
+    ######################### TESTS #########################
+    
+    AdminMFACheck.check_compliance(security_score)
+
+    GlobalAdminNumberCheck.check_compliance(graph_explrer_session, graph_explorer_headers)
+
 
 if __name__ == "__main__":
     main()

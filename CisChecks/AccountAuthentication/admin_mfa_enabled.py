@@ -3,11 +3,11 @@ from CisChecks.cis_check_model import AbstractCisCheck
 class AdminMFACheck(AbstractCisCheck):
     
     # Initialization with code and a short description
-    def __init__(self):
-        self.code = "1.1.1"
-        self.title = "Ensure multifactor authentication is enabled for all users in administrative roles"
+    code = "1.1.1"
+    title = "Ensure multifactor authentication is enabled for all users in administrative roles"
     
     # Retrieve from the security score the specific score and verify the compliance 
+    @classmethod
     def check_compliance(self, security_score_object):
         try:
             # Cycle over the control scores
